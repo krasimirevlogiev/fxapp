@@ -1,6 +1,5 @@
 package com.example.controllers;
 
-import com.example.dto.ConversionResponse;
 import com.example.dto.FixerResponse;
 import com.example.services.ExchangeRateService;
 import io.swagger.v3.oas.annotations.Operation;
