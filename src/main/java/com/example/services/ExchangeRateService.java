@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Service
 public class ExchangeRateService {
-
+    
     @Autowired
     private RestTemplate restTemplate;
 
