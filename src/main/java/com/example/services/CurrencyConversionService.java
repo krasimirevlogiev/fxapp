@@ -22,8 +22,6 @@ public class CurrencyConversionService {
 
     public ConversionResponse convertCurrency(ConversionRequest request) {
         
-        
-        
         Map<String, Object> rateResult = exchangeRateService.getExchangeRate(request.getFrom(), request.getTo());
         if(rateResult.containsKey("error")){
             
