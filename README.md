@@ -34,7 +34,7 @@ make run
 
 Access the interactive API documentation at: 
 ```bash
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/api/docs
 ```
 
 This provides a full interactive interface where you can:
