@@ -1,6 +1,8 @@
 package com.example.controllers;
 
 import com.example.config.TestConfig;
+import com.example.dto.ExchangeRateResponse;
+import com.example.exception.ExternalServiceException;
 import com.example.repository.ConversionTransactionRepository;
 import com.example.services.ExchangeRateService;
 import org.junit.jupiter.api.Test;
@@ -12,9 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.util.Map;
-import org.springframework.context.annotation.Import;
-import com.example.config.TestConfig;
+import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -40,10 +40,10 @@ public class ExchangeRateControllerTest {
 
     @Test
     public void testGetExchangeRate() throws Exception {
-        Map<String, Object> mockResponse = Map.of(
-            "from", "USD",
-            "to", "EUR",
-            "rate", new BigDecimal("0.85")
+        ExchangeRateResponse mockResponse = new ExchangeRateResponse(
+            "USD", 
+            "EUR", 
+            new BigDecimal("0.85")
         );
         
         when(exchangeRateService.getExchangeRate(anyString(), anyString())).thenReturn(mockResponse);
@@ -52,19 +52,18 @@ public class ExchangeRateControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.from").value("USD"))
                 .andExpect(jsonPath("$.to").value("EUR"))
-                .andExpect(jsonPath("$.rate").value(0.85));
+                .andExpect(jsonPath("$.rate").value(0.85))
+                .andExpect(jsonPath("$.success").value(true));
     }
 
     @Test
     public void testGetExchangeRateWithError() throws Exception {
-        Map<String, Object> errorResponse = Map.of(
-            "error", "Invalid currency code"
-        );
-        
-        when(exchangeRateService.getExchangeRate(anyString(), anyString())).thenReturn(errorResponse);
+        when(exchangeRateService.getExchangeRate(anyString(), anyString()))
+            .thenThrow(new ExternalServiceException("Invalid currency code"));
 
         mockMvc.perform(get("/api/exchange-rate/USD/XXX"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.error").value("Invalid currency code"));
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.message").value("Fixer API error: Invalid currency code"))
+                .andExpect(jsonPath("$.status").value(503));
     }
 }

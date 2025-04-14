@@ -1,60 +1,21 @@
 package com.example.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 import java.util.List;
 
-public class ConversionHistoryResponse {
+@Data
+@NoArgsConstructor
+@SuperBuilder
+@AllArgsConstructor
+public class ConversionHistoryResponse extends PageResponse {
     private List<ConversionResponse> transactions;
-    private int page;
-    private int size;
-    private long totalElements;
-    private int totalPages;
-
-    public ConversionHistoryResponse(List<ConversionResponse> transactions, int page, int size, 
-                                    long totalElements, int totalPages) {
+    
+    public ConversionHistoryResponse(long totalElements, int totalPages, int currentPage, List<ConversionResponse> transactions) {
+        super(currentPage, transactions != null ? transactions.size() : 0, totalElements, totalPages);
         this.transactions = transactions;
-        this.page = page;
-        this.size = size;
-        this.totalElements = totalElements;
-        this.totalPages = totalPages;
-    }
-
-    public List<ConversionResponse> getTransactions() {
-        return transactions;
-    }
-
-    public void setTransactions(List<ConversionResponse> transactions) {
-        this.transactions = transactions;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public long getTotalElements() {
-        return totalElements;
-    }
-
-    public void setTotalElements(long totalElements) {
-        this.totalElements = totalElements;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
-    }
-
-    public void setTotalPages(int totalPages) {
-        this.totalPages = totalPages;
     }
 }

@@ -1,7 +1,9 @@
 package com.example.services;
 
+import com.example.dto.ExchangeRateResponse;
 import com.example.dto.FixerResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.exception.ExternalServiceException;
+import com.example.exception.InvalidRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
@@ -15,24 +17,30 @@ import java.util.Map;
 @Service
 public class ExchangeRateService {
     
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Value("${fixer.api.url}")
     private String fixerApiUrl;
+    
     @Value("${fixer.api.key}")
     private String fixerApiKey;
 
+    public ExchangeRateService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     @Cacheable(value = "exchangeRates", key = "#from + '-' + #to")
-    public Map<String, Object> getExchangeRate(String from, String to) {
-        if (from.length() != 3 || to.length() != 3) {
-            return Map.of("error", "Currency codes must be 3 letters (e.g., USD, EUR).");
+    public ExchangeRateResponse getExchangeRate(String from, String to) {
+        if (from == null || to == null || from.length() != 3 || to.length() != 3) {
+            throw new InvalidRequestException("Currency codes must be 3 letters (e.g., USD, EUR).");
         }
         
         if (from.equalsIgnoreCase(to)) {
-            return Map.of("from", from.toUpperCase(), 
-                          "to", to.toUpperCase(), 
-                          "rate", 1.0);
+            return new ExchangeRateResponse(
+                from.toUpperCase(),
+                to.toUpperCase(),
+                BigDecimal.ONE
+            );
         }
 
         String url = String.format("%s/latest?access_key=%s&symbols=%s,%s",
@@ -47,21 +55,23 @@ public class ExchangeRateService {
                 String msg = (fixerData != null && fixerData.getError() != null)
                         ? fixerData.getError().getInfo()
                         : "Unknown error from Fixer";
-                return Map.of("error", "Fixer API error: " + msg);
+                throw new ExternalServiceException("Fixer API error: " + msg);
             }
 
             Map<String, BigDecimal> rates = fixerData.getRates();
             String base = fixerData.getBase();  
             BigDecimal resultRate = computeRate(from, to, base, rates);
 
-            return Map.of(
-                "from", from.toUpperCase(),
-                "to", to.toUpperCase(),
-                "rate", resultRate
+            return new ExchangeRateResponse(
+                from.toUpperCase(),
+                to.toUpperCase(),
+                resultRate
             );
 
+        } catch (ExternalServiceException e) {
+            throw e;
         } catch (Exception ex) {
-            return Map.of("error", "Could not contact Fixer.io: " + ex.getMessage());
+            throw new ExternalServiceException("Could not contact Fixer.io: " + ex.getMessage());
         }
     }
 

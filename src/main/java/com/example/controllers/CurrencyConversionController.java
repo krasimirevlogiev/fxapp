@@ -8,21 +8,23 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/convert")
 @Tag(name = "Currency Conversion", description = "Currency Conversion API")
 public class CurrencyConversionController {
 
-    @Autowired
-    private CurrencyConversionService conversionService;
+    private final CurrencyConversionService conversionService;
 
-    @PostMapping("/convert")
+    public CurrencyConversionController(CurrencyConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
+
+    @PostMapping
     @Operation(
         summary = "Convert currency",
         description = "Converts an amount from one currency to another using current exchange rates",

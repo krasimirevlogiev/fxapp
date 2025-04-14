@@ -8,12 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-public interface ConversionTransactionRepository extends JpaRepository<ConversionTransaction, String> {
+public interface ConversionTransactionRepository extends JpaRepository<ConversionTransaction, UUID> {
     
-   @Query("SELECT ct FROM ConversionTransaction ct WHERE ct.transactionId = :transactionId")
-   Page<ConversionTransaction> findByTransactionId(@Param("transactionId") String transactionId, Pageable pageable);
+    Page<ConversionTransaction> findByTransactionId(UUID transactionId, Pageable pageable);
    
-   @Query("SELECT ct FROM ConversionTransaction ct WHERE FUNCTION('FORMATDATETIME', ct.conversionTime, 'yyyy-MM-dd') = FUNCTION('FORMATDATETIME', :date, 'yyyy-MM-dd')")
+    @Query("SELECT ct FROM ConversionTransaction ct WHERE FUNCTION('FORMATDATETIME', ct.conversionTime, 'yyyy-MM-dd') = FUNCTION('FORMATDATETIME', :date, 'yyyy-MM-dd')")
     Page<ConversionTransaction> findByConversionDate(@Param("date") LocalDateTime date, Pageable pageable);
 }

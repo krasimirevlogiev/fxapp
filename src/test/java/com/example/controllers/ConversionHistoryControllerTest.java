@@ -16,8 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.context.annotation.Import;
-import com.example.config.TestConfig;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -51,16 +50,21 @@ public class ConversionHistoryControllerTest {
                 new BigDecimal("85.00")
         );
         
+        
         ConversionHistoryResponse mockResponse = new ConversionHistoryResponse(
-                List.of(conversion),
-                0,
-                10,
-                1,
-                1
+                1L,                  
+                1,                  
+                0,                  
+                List.of(conversion)  
         );
         
-        when(historyService.getHistory(eq("test-id-123"), isNull(), anyInt(), anyInt()))
-                .thenReturn(mockResponse);
+       
+        when(historyService.getHistory(
+                eq(UUID.fromString("test-id-123")), 
+                isNull(), 
+                anyInt(), 
+                anyInt()))
+            .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/history")
                 .param("transactionId", "test-id-123"))
@@ -81,11 +85,10 @@ public class ConversionHistoryControllerTest {
         );
         
         ConversionHistoryResponse mockResponse = new ConversionHistoryResponse(
-                List.of(conversion),
-                0,
-                10,
-                1,
-                1
+                1L,                  
+                1,                   
+                0,                   
+                List.of(conversion)  
         );
         
         when(historyService.getHistory(isNull(), any(LocalDate.class), anyInt(), anyInt()))

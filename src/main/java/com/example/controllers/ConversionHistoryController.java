@@ -1,6 +1,7 @@
 package com.example.controllers;
 
 import com.example.dto.ConversionHistoryResponse;
+import com.example.dto.ConversionHistoryRequest;
 import com.example.services.ConversionHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,25 +9,24 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/history")
 @Tag(name = "Conversion History", description = "Conversion History API")
 public class ConversionHistoryController {
 
-    @Autowired
-    private ConversionHistoryService historyService;
+    private final ConversionHistoryService historyService;
 
-    @GetMapping("/history")
+    public ConversionHistoryController(ConversionHistoryService historyService) {
+        this.historyService = historyService;
+    }
+
+    @GetMapping
     @Operation(
         summary = "Get conversion history",
         description = "Retrieves conversion history filtered by transaction ID or date",
@@ -36,27 +36,21 @@ public class ConversionHistoryController {
                 description = "Successful retrieval of history",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ConversionHistoryResponse.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Missing required parameters")
+            @ApiResponse(responseCode = "400", description = "Missing required parameters"),
+            @ApiResponse(responseCode = "404", description = "No transactions found")
         }
     )
     public ResponseEntity<ConversionHistoryResponse> getHistory(
-        @Parameter(description = "Transaction ID to filter by") 
-        @RequestParam(required = false) String transactionId,
+        @Parameter(description = "History search criteria") 
+        @ModelAttribute ConversionHistoryRequest request) {
         
-        @Parameter(description = "Date to filter by (format: YYYY-MM-DD)") 
-        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+        ConversionHistoryResponse response = historyService.getHistory(
+            request.getTransactionId(), 
+            request.getDate(), 
+            request.getPage(), 
+            request.getSize()
+        );
         
-        @Parameter(description = "Page number (0-based)") 
-        @RequestParam(defaultValue = "0") int page,
-        
-        @Parameter(description = "Page size") 
-        @RequestParam(defaultValue = "10") int size) {
-        
-        if (transactionId == null && date == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        
-        ConversionHistoryResponse response = historyService.getHistory(transactionId, date, page, size);
         return ResponseEntity.ok(response);
     }
 }

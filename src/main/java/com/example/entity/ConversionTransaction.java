@@ -1,75 +1,51 @@
 package com.example.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name = "conversion_transaction")
+@Getter
+@Setter
+@NoArgsConstructor
 public class ConversionTransaction {
 
     @Id
-    private String transactionId;
+    @Column(name = "transaction_id")
+    private UUID transactionId;
+
+    @Column(name = "from_currency")
     private String fromCurrency;
+    
+    @Column(name = "to_currency")
     private String toCurrency;
+    
+    @Column(name = "original_amount")
     private BigDecimal originalAmount;
+    
+    @Column(name = "converted_amount")
     private BigDecimal convertedAmount;
+    
+    @CreationTimestamp
+    @Column(name = "conversion_time", updatable = false)
     private LocalDateTime conversionTime;
 
-    public ConversionTransaction() {
-    }
-
     public ConversionTransaction(String fromCurrency, String toCurrency, BigDecimal originalAmount, BigDecimal convertedAmount) {
-        this.transactionId = UUID.randomUUID().toString();
+        this.transactionId = UUID.randomUUID();
         this.fromCurrency = fromCurrency;
         this.toCurrency = toCurrency;
         this.originalAmount = originalAmount;
         this.convertedAmount = convertedAmount;
-        this.conversionTime = LocalDateTime.now();
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public String getFromCurrency() {
-        return fromCurrency;
-    }
-
-    public void setFromCurrency(String fromCurrency) {
-        this.fromCurrency = fromCurrency;
-    }
-
-    public String getToCurrency() {
-        return toCurrency;
-    }
-
-    public void setToCurrency(String toCurrency) {
-        this.toCurrency = toCurrency;
-    }
-
-    public BigDecimal getOriginalAmount() {
-        return originalAmount;
-    }
-
-    public void setOriginalAmount(BigDecimal originalAmount) {
-        this.originalAmount = originalAmount;
-    }
-
-    public BigDecimal getConvertedAmount() {
-        return convertedAmount;
-    }
-
-    public void setConvertedAmount(BigDecimal convertedAmount) {
-        this.convertedAmount = convertedAmount;
-    }
-
-    public LocalDateTime getConversionTime() {
-        return conversionTime;
-    }
-
-    public void setConversionTime(LocalDateTime conversionTime) {
-        this.conversionTime = conversionTime;
     }
 }

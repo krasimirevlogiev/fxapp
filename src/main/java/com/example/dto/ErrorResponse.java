@@ -4,13 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConversionRequest {
-    private String from;
-    private String to;
-    private BigDecimal amount;
+public class ErrorResponse {
+    private String message;
+    private int status;
 }
